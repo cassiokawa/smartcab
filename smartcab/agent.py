@@ -23,9 +23,9 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # Set any additional class parameters as needed
+        self.t = 0
 
-
-    def reset(self, destination=None, testing=False):
+    def reset(self, destination=None, testing=True):
         """ The reset function is called at the beginning of each trial.
             'testing' is set to True if testing trials are being used
             once training trials have completed. """
@@ -39,8 +39,23 @@ class LearningAgent(Agent):
         # Update epsilon using a decay function of your choice
         # Update additional class parameters as needed
         # If 'testing' is True, set epsilon and alpha to 0
+        if testing:
+            self.epsilon = 0.0
+            self.alpha = 0.0
+        else:
+            # commented out testing parameters
+            # self.epsilon = self.epsilon - 0.05
+            # self.t += 1.0
+            self.epsilon = 1.0/(self.t**2)
+            # self.epsilon = 1.0/(self.t**2 + self.alpha*self.t)
+            # self.epsilon = 1.0/(self.t**2 - self.alpha*self.t)
+            # self.epsilon = math.fabs(math.cos(self.alpha*self.t))
+            # self.epsilon = math.fabs(math.cos(self.alpha*self.t))/(self.t**2)
+            # self.epsilon = 1.0/(self.t**2)
+            # self.epsilon = math.fabs(math.cos(self.alpha*self.t))
 
         return None
+
 
     def build_state(self):
         """ The build_state function is called when the agent requests data from the
@@ -62,7 +77,16 @@ class LearningAgent(Agent):
         # With the hand-engineered features, this learning process gets entirely negated.
 
         # Set 'state' as a tuple of relevant data for the agent
-        state = None
+                # helper to create state string
+        def xstr(s):
+            if s is None:
+                return 'None'
+            else:
+                return str(s)
+
+        state = xstr(waypoint) + "_" + inputs['light'] + "_" + xstr(inputs['left']) + "_" +  xstr(inputs['oncoming'])
+        if self.learning:
+            self.Q[state] = self.Q.get(state, {None:0.0, 'forward':0.0, 'left':0.0, 'right':0.0})
 
         return state
 
@@ -76,8 +100,10 @@ class LearningAgent(Agent):
         ###########
         # Calculate the maximum Q-value of all actions for a given state
 
-        maxQ = None
-
+        maxQ = -1000.0
+        for action in self.Q[state]:
+            if maxQ < self.Q[state][action]:
+                maxQ = self.Q[state][action]
         return maxQ
 
 
@@ -101,7 +127,7 @@ class LearningAgent(Agent):
         # Set the agent state and default action
         self.state = state
         self.next_waypoint = self.planner.next_waypoint()
-        action = None
+
 
         ###########
         ## TO DO ##
@@ -110,7 +136,20 @@ class LearningAgent(Agent):
         # When learning, choose a random action with 'epsilon' probability
         # Otherwise, choose an action with the highest Q-value for the current state
         # Be sure that when choosing an action with highest Q-value that you randomly select between actions that "tie".
+        if not self.learning:
+            action = random.choice(self.valid_actions)
+        else:
+            if self.epsilon > 0.01 and self.epsilon > random.random():
+                action = random.choice(self.valid_actions)
+            else:
+                valid_actions = []
+                maxQ = self.get_maxQ(state)
+                for act in self.Q[state]:
+                    if maxQ == self.Q[state][act]:
+                        valid_actions.append(act)
+                action = random.choice(valid_actions)
         return action
+
 
 
     def learn(self, state, action, reward):
@@ -123,7 +162,8 @@ class LearningAgent(Agent):
         ###########
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
-
+        if self.learning:
+            self.Q[state][action] = self.Q[state][action] + self.alpha*(reward-self.Q[state][action])
         return
 
 
@@ -159,7 +199,7 @@ def run():
     #   learning   - set to True to force the driving agent to use Q-learning
     #    * epsilon - continuous value for the exploration factor, default is 1
     #    * alpha   - continuous value for the learning rate, default is 0.5
-    agent = env.create_agent(LearningAgent, learning=False)
+    agent = env.create_agent(LearningAgent, learning=True, alpha=0.5, epsilon=0.5)
 
     ##############
     # Follow the driving agent
