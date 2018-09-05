@@ -22,7 +22,7 @@ class LearningAgent(Agent):
         ###########
         ## TO DO ##
         ###########
-        # Set any additional class parameters as needed
+        # Set andy additional class parameters as needed
         self.t = 0
 
     def reset(self, destination=None, testing=True):
@@ -39,21 +39,13 @@ class LearningAgent(Agent):
         # Update epsilon using a decay function of your choice
         # Update additional class parameters as needed
         # If 'testing' is True, set epsilon and alpha to 0
-        if testing:
+        if testing==True:
             self.epsilon = 0.0
             self.alpha = 0.0
         else:
-            # commented out testing parameters
-            # self.epsilon = self.epsilon - 0.05
-            self.t += 1.0
-            # self.epsilon = 1.0/(self.t**2)
-            # self.epsilon = 1.0/(self.t**2 + self.alpha*self.t)
-            # self.epsilon = 1.0/(self.t**2 - self.alpha*self.t)
-            self.epsilon = math.fabs(math.cos(self.alpha*self.t))
-            # self.epsilon = math.fabs(math.cos(self.alpha*self.t))/(self.t**2)
-            # self.epsilon = 1.0/(self.t**2)
-            # self.epsilon = math.fabs(math.cos(self.alpha*self.t))
+            self.epsilon = self.epsilon - .0005
 
+            
         return None
 
 
@@ -78,17 +70,14 @@ class LearningAgent(Agent):
 
         # Set 'state' as a tuple of relevant data for the agent
                 # helper to create state string
-        def xstr(s):
-            if s is None:
-                return 'None'
-            else:
-                return str(s)
-
-        state = xstr(waypoint) + "_" + inputs['light'] + "_" + xstr(inputs['left']) + "_" +  xstr(inputs['oncoming'])
-        if self.learning:
-            self.Q[state] = self.Q.get(state, {None:0.0, 'forward':0.0, 'left':0.0, 'right':0.0})
+        state = waypoint, inputs['light'], inputs['oncoming'], inputs['left']
+        if self.learning == True:
+            if state not in self.Q.keys():
+                self.createQ(state)
 
         return state
+
+
 
 
     def get_maxQ(self, state):
@@ -99,12 +88,12 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # Calculate the maximum Q-value of all actions for a given state
+        # maxQ = None
+        if state in self.Q:
+            key, value = max(self.Q[state].iteritems(), key=lambda x:x[1])
+            maxQ = key
+        return maxQ 
 
-        maxQ = -1000.0
-        for action in self.Q[state]:
-            if maxQ < self.Q[state][action]:
-                maxQ = self.Q[state][action]
-        return maxQ
 
 
     def createQ(self, state):
@@ -117,7 +106,12 @@ class LearningAgent(Agent):
         # If it is not, create a new dictionary for that state
         #   Then, for each action available, set the initial Q-value to 0.0
 
+        if self.learning:
+            if not (state in self.Q.keys()):
+                self.Q[state] = {None: 0.0, 'forward': 0.0, 'left': 0.0 , 'right': 0.0}
         return
+
+
 
 
     def choose_action(self, state):
@@ -136,18 +130,13 @@ class LearningAgent(Agent):
         # When learning, choose a random action with 'epsilon' probability
         # Otherwise, choose an action with the highest Q-value for the current state
         # Be sure that when choosing an action with highest Q-value that you randomly select between actions that "tie".
+    
         if not self.learning:
             action = random.choice(self.valid_actions)
-        else:
-            if self.epsilon > 0.01 and self.epsilon > random.random():
+        elif random.random() < self.epsilon:
                 action = random.choice(self.valid_actions)
-            else:
-                valid_actions = []
-                maxQ = self.get_maxQ(state)
-                for act in self.Q[state]:
-                    if maxQ == self.Q[state][act]:
-                        valid_actions.append(act)
-                action = random.choice(valid_actions)
+        else:
+            action = self.get_maxQ(state)
         return action
 
 
@@ -162,10 +151,10 @@ class LearningAgent(Agent):
         ###########
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
-        if self.learning:
-            self.Q[state][action] = self.Q[state][action] + self.alpha*(reward-self.Q[state][action])
+        
+        if self.learning == True:
+            self.Q[state][action] += self.alpha*(reward-self.Q[state][action])
         return
-
 
     def update(self):
         """ The update function is called when a time step is completed in the
@@ -221,7 +210,7 @@ def run():
     # Flags:
     #   tolerance  - epsilon tolerance before beginning testing, default is 0.05
     #   n_test     - discrete number of testing trials to perform, default is 0
-    sim.run(n_test=100, tolerance=0.01)
+    sim.run(n_test=10, tolerance=0.01)
 
 
 if __name__ == '__main__':
