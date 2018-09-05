@@ -25,7 +25,7 @@ class LearningAgent(Agent):
         # Set andy additional class parameters as needed
         self.t = 0
 
-    def reset(self, destination=None, testing=True):
+    def reset(self, destination=None, testing=True  ):
         """ The reset function is called at the beginning of each trial.
             'testing' is set to True if testing trials are being used
             once training trials have completed. """
@@ -88,7 +88,7 @@ class LearningAgent(Agent):
         ## TO DO ##
         ###########
         # Calculate the maximum Q-value of all actions for a given state
-        # maxQ = None
+        maxQ = None
         if state in self.Q:
             key, value = max(self.Q[state].iteritems(), key=lambda x:x[1])
             maxQ = key
