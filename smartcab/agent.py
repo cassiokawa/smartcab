@@ -43,9 +43,7 @@ class LearningAgent(Agent):
             self.epsilon = 0.0
             self.alpha = 0.0
         else:
-            self.epsilon = self.epsilon - .0005
-
-            
+            self.epsilon = self.epsilon - .002
         return None
 
 
@@ -89,9 +87,7 @@ class LearningAgent(Agent):
         ###########
         # Calculate the maximum Q-value of all actions for a given state
         maxQ = None
-        if state in self.Q:
-            key, value = max(self.Q[state].iteritems(), key=lambda x:x[1])
-            maxQ = key
+        maxQ = max(self.Q[state].values())
         return maxQ 
 
 
@@ -131,12 +127,31 @@ class LearningAgent(Agent):
         # Otherwise, choose an action with the highest Q-value for the current state
         # Be sure that when choosing an action with highest Q-value that you randomly select between actions that "tie".
     
-        if not self.learning:
-            action = random.choice(self.valid_actions)
-        elif random.random() < self.epsilon:
+        # if (not self.learning):
+        #     action = random.choice(self.valid_actions)
+        # else:
+        #     if (self.epsilon >= random.random()):
+        #         action = random.choice(self.valid_actions)
+        #     else:
+        #         act_list = []
+        #         for act in self.valid_actions:
+        #             if (self.Q[state][act] == self.get_maxQ(state)):
+        #                 act_list.append(act)
+        #         action = random.choice(act_list)
+
+
+        if self.learning:
+            if (self.epsilon < random.random()):
+                listicle = []
+                for a in self.valid_actions:
+                    if (self.Q[state][a] == self.get_maxQ(state)):
+                        listicle.append(a)
+                action = random.choice(listicle)   
+            else:
                 action = random.choice(self.valid_actions)
         else:
-            action = self.get_maxQ(state)
+            action = random.choice(self.valid_actions)     
+                
         return action
 
 
