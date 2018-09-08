@@ -12417,27 +12417,19 @@ If there is incoming traffic and the smartcab needs to turn left, wait until no 
  -- right : 0.65
  -- None : -4.35
  -- left : 1.44
-Waypoint is left, and the light is green, smartcab goes left, going left has the highest reward. The incoming traffic is going left so we don't care about it.</p>
-<p>right_green_None_None
- -- forward : 1.26
- -- right : 1.67
- -- None : -4.85
- -- left : 1.10
-Waypoint is right, light is green, smartcab should go. Nevertheless there is a positive reward associated with going left. Following the traffic laws does come with some hardships for the smartcab. If you think just about efficiency the cab shouldn't go right.</p>
+Waypoint is left, and the light is green, smartcab goes left, going left has the highest reward. The incoming traffic is going left so we don't care about it, and it is the optimal action.</p>
+<p>('right', 'green', 'forward', 'right')
+ -- forward : 0.25
+ -- right : 0.00
+ -- None : 0.00
+ -- left : 0.00
+Waypoint is right, the light is green but the smartcab goes forward. The car on the left side of the smartcab's left side is going forward so even if our smartcab turned right that would not be a problem. To the right side of the smartcab's right there is a car but this car is also turning right, if the smartcab steer correctly no accident would happen. But besides the suboptimal decision of the car to go forward, all the other three directions are tied on zero points. That means the reward of going right, the intended direction of the smartcab's waypoint is the same reward as the car stay put or even worse make a dangerous turn to the left.</p>
 
 </div>
 </div>
-</div>
-<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
-</div>
-<div class="inner_cell">
-<div class="text_cell_render border-box-sizing rendered_html">
-<hr>
-<h3 id="Optional:-Future-Rewards---Discount-Factor,-'gamma'">Optional: Future Rewards - Discount Factor, <code>'gamma'</code><a class="anchor-link" href="#Optional:-Future-Rewards---Discount-Factor,-'gamma'">&#182;</a></h3><p>Curiously, as part of the Q-Learning algorithm, you were asked to <strong>not</strong> use the discount factor, <code>'gamma'</code> in the implementation. Including future rewards in the algorithm is used to aid in propagating positive rewards backwards from a future state to the current state. Essentially, if the driving agent is given the option to make several actions to arrive at different states, including future rewards will bias the agent towards states that could provide even more rewards. An example of this would be the driving agent moving towards a goal: With all actions and rewards equal, moving towards the goal would theoretically yield better rewards if there is an additional reward for reaching the goal. However, even though in this project, the driving agent is trying to reach a destination in the allotted time, including future rewards will not benefit the agent. In fact, if the agent were given many trials to learn, it could negatively affect Q-values!</p>
-
-</div>
-</div>
-</div>
+</div>-----
+### Optional: Future Rewards - Discount Factor, `'gamma'`
+Curiously, as part of the Q-Learning algorithm, you were asked to **not** use the discount factor, `'gamma'` in the implementation. Including future rewards in the algorithm is used to aid in propagating positive rewards backwards from a future state to the current state. Essentially, if the driving agent is given the option to make several actions to arrive at different states, including future rewards will bias the agent towards states that could provide even more rewards. An example of this would be the driving agent moving towards a goal: With all actions and rewards equal, moving towards the goal would theoretically yield better rewards if there is an additional reward for reaching the goal. However, even though in this project, the driving agent is trying to reach a destination in the allotted time, including future rewards will not benefit the agent. In fact, if the agent were given many trials to learn, it could negatively affect Q-values!
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div>
 <div class="inner_cell">
